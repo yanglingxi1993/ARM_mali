@@ -211,7 +211,7 @@ We all know that when we mmap() the  `reg->gpu_alloc` to CPU side, it only check
 
 However, the strange situation can lead to memory corruption in a race condition:
 ```
-Thread 1                                                  Thread2
+Thread 1                                              Thread2
 (processing the command 
 `BASE_KCPU_COMMAND_TYPE_MAP_IMPORT`)
 
@@ -220,11 +220,11 @@ A1. enter the function `kbase_kcpu_map_import_prepare`:
 while the `pages` field of `reg->gpu_alloc` is 
 left uninitialized !!!
 
-                                                           B1. mmap() the pages in the  `pages` field of  `reg->gpu_alloc` to 
-                                                           user space with mmap() syscall. But the `pages` is not initialized 
-                                                           yet!!!
-                                                           By this operation, we just mmap() some physical pages which should 
-                                                           never been accessed to the user space for accessing !!
+                                                      B1. mmap() the pages in the  `pages` field of  `reg->gpu_alloc` to 
+                                                      user space with mmap() syscall. But the `pages` is not initialized 
+                                                      yet!!!
+                                                      By this operation, we just mmap() some physical pages which should 
+                                                      never been accessed to the user space for accessing !!
 
 A2. enter the function `kcpu_queue_process`:
 `pages` field of `reg->gpu_alloc` gets initialized
